@@ -1,3 +1,4 @@
+import 'package:adopt_app/providers/auth_provider.dart';
 import 'package:adopt_app/providers/pets_provider.dart';
 import 'package:adopt_app/widgets/pet_card.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,61 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pet Adopt"),
+      ),
+      drawer: Drawer(
+        child: FutureBuilder(
+          future: context.read<AuthProvider>().initializeAuth(),
+          builder: (context, dataSnapshot) => Consumer<AuthProvider>(
+            builder: (context, authProvider, child) => authProvider.isAuth()
+                ? ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      DrawerHeader(
+                        decoration: const BoxDecoration(color: Colors.blue),
+                        child: Text("Welcome ${authProvider.user.username}"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout),
+                        title: const Text('Signout'),
+                        onTap: () {
+                          authProvider.signout();
+                          GoRouter.of(context)
+                              .pop(); // Pop back to the home page
+                        },
+                      ),
+                    ],
+                  )
+                : ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.person_add),
+                        title: const Text('Signup'),
+                        onTap: () {
+                          // Navigate to the signup page
+                          GoRouter.of(context).push('/signup');
+                        },
+                      ),
+                      ListTile(
+                        title: const Text("Signin"),
+                        trailing: const Icon(Icons.login),
+                        onTap: () {
+                          GoRouter.of(context).push('/signin');
+                        },
+                      ),
+                      // ListTile(
+                      //   title: const Text("Logout"),
+                      //   trailing: const Icon(Icons.logout),
+                      //   onTap: () {
+                      //     Provider.of<AuthProvider>(context, listen: false)
+                      //         .signout();
+                      //     GoRouter.of(context).pop();
+                      //   },
+                      // ),
+                    ],
+                  ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -54,8 +110,7 @@ class HomePage extends StatelessWidget {
                                     MediaQuery.of(context).size.width /
                                         (MediaQuery.of(context).size.height),
                               ),
-                              physics:
-                                  const NeverScrollableScrollPhysics(), // <- Here
+                              physics: const NeverScrollableScrollPhysics(),
                               itemCount: petsProvider.pets.length,
                               itemBuilder: (context, index) =>
                                   PetCard(pet: petsProvider.pets[index])),

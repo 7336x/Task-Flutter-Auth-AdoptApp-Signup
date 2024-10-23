@@ -1,0 +1,29 @@
+import 'package:adopt_app/models/user.dart';
+import 'package:adopt_app/services/pets.dart';
+import 'package:dio/dio.dart';
+
+class AuthServices {
+  Future<String> signup({required User user}) async {
+    late String token;
+    try {
+      Response response =
+          await DioClient.client.post('/signup', data: user.toJson());
+      token = response.data["token"];
+    } on DioError catch (error) {
+      print(error);
+    }
+    return token;
+  }
+
+  Future<String> signin({required User user}) async {
+    late String token;
+    try {
+      Response response =
+          await DioClient.client.post('/signin', data: user.toJson());
+      token = response.data["token"];
+    } on DioError catch (error) {
+      print(error);
+    }
+    return token;
+  }
+}
